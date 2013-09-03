@@ -26,7 +26,7 @@ public class VersionResourceTest extends JerseyTest
 	}
 	
 	@Test
-	public void shouldTest()
+	public void shouldReturnVersion()
 	{
 		final String result = target("version").request().get(String.class);
 		String version = new ConfigurationServiceImpl().get("application.version");

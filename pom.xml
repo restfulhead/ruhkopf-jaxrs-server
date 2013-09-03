@@ -9,9 +9,11 @@
 	<properties>
 		<org.glassfish.jersey.version>2.2</org.glassfish.jersey.version>
 		<org.springframework.version>3.2.4.RELEASE</org.springframework.version>
+		<org.hibernate.version>4.2.5.Final</org.hibernate.version>
 	</properties>
 
 	<dependencies>
+		<!-- JAX-RS -->
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
 			<artifactId>jersey-container-servlet</artifactId>
@@ -24,20 +26,41 @@
 			<version>${org.glassfish.jersey.version}</version>
 		</dependency>
 
+		<!-- PERSISTENCE -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>${org.hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>2.2.2</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.1-901.jdbc4</version>
+		</dependency>
+
+		<!-- SPRING -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>${org.springframework.version}</version>
-			<scope>compile</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>14.0.1</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${org.springframework.version}</version>
 		</dependency>
-
-		<!-- required by spring -->
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -50,6 +73,19 @@
 			</exclusions>
 		</dependency>
 
+		<!-- TOOLS -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>14.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.1</version>
+		</dependency>
+
+		<!-- TEST -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -57,11 +93,17 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- test -->
 		<dependency>
 			<groupId>org.glassfish.jersey.test-framework</groupId>
 			<artifactId>jersey-test-framework-core</artifactId>
 			<version>${org.glassfish.jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${org.springframework.version}</version>
 			<scope>test</scope>
 		</dependency>
 
