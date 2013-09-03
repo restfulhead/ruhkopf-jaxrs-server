@@ -9,7 +9,7 @@
   http://www.springframework.org/schema/context/spring-context.xsd
   http://www.springframework.org/schema/tx 
   http://www.springframework.org/schema/tx/spring-tx.xsd">
-		
+
 	<!-- CONTEXT -->
 	<context:property-placeholder location="/application.properties" />
 
@@ -26,13 +26,20 @@
 	</bean>
 
 	<bean id="dataSource"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="${db.driver}" />
-		<property name="url" value="${db.url}" />
-		<property name="username" value="${db.user}" />
+		class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${db.driver}" />
+		<property name="jdbcUrl" value="${db.url}" />
+		<property name="user" value="${db.user}" />
 		<property name="password" value="${db.password}" />
+		
+		  <!-- Pool properties -->
+		  <property name="minPoolSize" value="${db.pool.min}" />
+		  <property name="maxPoolSize" value="${db.pool.max}" />
+		  <property name="maxStatements" value="50" />
+		  <property name="idleConnectionTestPeriod" value="300" />
+		  <property name="loginTimeout" value="300" />
 	</bean>
-
+	
 	<bean id="entityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="dataSource" ref="dataSource" />
