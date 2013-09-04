@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.PersistenceContext;
 
 import name.ruhkopf.jaxrs.server.model.LoginEntity;
@@ -51,7 +53,7 @@ public class UsernamePasswordLoginService implements LoginServiceProvider
 	@Override
 	public List<LoginEntity> findAllLogins(int start, int count)
 	{
-		return em.createNamedQuery("findAllByAccessType")
+		return em.createQuery("SELECT l FROM LoginEntity l WHERE l.accessType = :accessType")
 			    .setParameter("accessType", ACCESS_TYPE)
 			    .setFirstResult(start)
 			    .setMaxResults(count)
@@ -64,7 +66,7 @@ public class UsernamePasswordLoginService implements LoginServiceProvider
 	@Override
 	public long countAllLogins()
 	{
-		return (long) em.createNamedQuery("countAllByAccessType")
+		return (long) em.createQuery("SELECT count(l) FROM LoginEntity l WHERE l.accessType = :accessType")
 			    .setParameter("accessType", ACCESS_TYPE)
 			    .getSingleResult();
 	}
