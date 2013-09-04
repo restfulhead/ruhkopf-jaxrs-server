@@ -3,9 +3,11 @@ package name.ruhkopf.jaxrs.server.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name="logins")
+@Table(name="logins", uniqueConstraints= {
+@UniqueConstraint(columnNames = {"userToken", "accessType"}) })
 public class LoginEntity extends AbstractEntity
 {
    @Column(nullable = false)

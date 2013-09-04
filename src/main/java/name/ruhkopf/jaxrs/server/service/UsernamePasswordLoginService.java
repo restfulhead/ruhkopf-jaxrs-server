@@ -4,15 +4,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.PersistenceContext;
 
 import name.ruhkopf.jaxrs.server.model.LoginEntity;
+import name.ruhkopf.jaxrs.server.service.PersistenceService.Closure;
 import name.ruhkopf.jaxrs.server.util.Precondition;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 
@@ -23,8 +22,8 @@ public class UsernamePasswordLoginService implements LoginServiceProvider
 	
 	protected final static String ACCESS_TYPE = "password";
 	
-	@PersistenceContext
-	private EntityManager em;
+	@Inject
+	private PersistenceService persistenceService;
 
 	@Inject
 	private EncryptionService encryptionService;
@@ -40,11 +39,30 @@ public class UsernamePasswordLoginService implements LoginServiceProvider
 
 		String encryptedToken = encryptionService.createHash(accessToken);
 		
-		LoginEntity login = new LoginEntity(userToken, encryptedToken, ACCESS_TYPE);
-		LOG.info("Creating new login for {} (type='{}')", userToken, ACCESS_TYPE);
-		em.persist(login);
+		final LoginEntity login = new LoginEntity(userToken, encryptedToken, ACCESS_TYPE);
+		LOG.info("Persisting login {} (type='{}')", login.getUserToken(), ACCESS_TYPE);
+
+		try
+		{
+			persistenceService.runInTransaction(new Closure()
+			{
+				@Override
+				public void invoke(EntityManager em)
+				{
+					em.persist(login);
+				}
+			});
+		}
+		catch (DataIntegrityViolationException ex)
+		{
+			// user already exists
+			LOG.info("Persisting login {} (type='{}') failed due to {}", login.getUserToken(), ACCESS_TYPE, ex.getMessage());
+			throw new LoginAlreadyExistsException(login.getUserToken());
+		}
+
 		return login;
 	}
+	
 
 	/* (non-Javadoc)
 	 * @see name.ruhkopf.jaxrs.server.service.LoginService#findAllLogins(int, int)
@@ -53,7 +71,7 @@ public class UsernamePasswordLoginService implements LoginServiceProvider
 	@Override
 	public List<LoginEntity> findAllLogins(int start, int count)
 	{
-		return em.createQuery("SELECT l FROM LoginEntity l WHERE l.accessType = :accessType")
+		return persistenceService.getEm().createQuery("SELECT l FROM LoginEntity l WHERE l.accessType = :accessType")
 			    .setParameter("accessType", ACCESS_TYPE)
 			    .setFirstResult(start)
 			    .setMaxResults(count)
@@ -66,7 +84,7 @@ public class UsernamePasswordLoginService implements LoginServiceProvider
 	@Override
 	public long countAllLogins()
 	{
-		return (long) em.createQuery("SELECT count(l) FROM LoginEntity l WHERE l.accessType = :accessType")
+		return (long) persistenceService.getEm().createQuery("SELECT count(l) FROM LoginEntity l WHERE l.accessType = :accessType")
 			    .setParameter("accessType", ACCESS_TYPE)
 			    .getSingleResult();
 	}
@@ -78,24 +96,43 @@ public class UsernamePasswordLoginService implements LoginServiceProvider
 	@Override
 	public LoginEntity findLogin(Integer id)
 	{
-		return em.find(LoginEntity.class, id);
+		return persistenceService.getEm().find(LoginEntity.class, id);
 	}
 
 
 	/**
-	 * @return the em
+	 * @return the dao
 	 */
-	public EntityManager getEm()
+	public PersistenceService getPersistenceService()
 	{
-		return em;
+		return persistenceService;
 	}
 
+
 	/**
-	 * @param em the em to set
+	 * @param dao the dao to set
 	 */
-	public void setEm(EntityManager em)
+	public void setPersistenceService(PersistenceService dao)
 	{
-		this.em = em;
+		this.persistenceService = dao;
+	}
+
+
+	/**
+	 * @return the encryptionService
+	 */
+	public EncryptionService getEncryptionService()
+	{
+		return encryptionService;
+	}
+
+
+	/**
+	 * @param encryptionService the encryptionService to set
+	 */
+	public void setEncryptionService(EncryptionService encryptionService)
+	{
+		this.encryptionService = encryptionService;
 	}
 
 }
