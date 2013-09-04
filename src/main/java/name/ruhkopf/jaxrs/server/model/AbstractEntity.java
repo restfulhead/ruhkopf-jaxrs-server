@@ -37,7 +37,7 @@ public abstract class AbstractEntity
 			return false;
 		if (obj == this)
 			return true;
-		if (!(obj instanceof User))
+		if (!(obj instanceof LoginEntity))
 			return false;
 
 		if (this.getId() == null)
@@ -45,7 +45,7 @@ public abstract class AbstractEntity
 			return super.equals(obj);
 		}
 
-		User rhs = (User) obj;
+		LoginEntity rhs = (LoginEntity) obj;
 		if (rhs.getId() == null)
 		{
 			return super.equals(obj);
