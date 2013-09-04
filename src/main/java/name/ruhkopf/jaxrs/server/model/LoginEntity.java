@@ -2,10 +2,16 @@ package name.ruhkopf.jaxrs.server.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="logins")
+@NamedQueries( {
+	@NamedQuery(name="findAllByAccessType", query="SELECT l FROM LoginEntity l WHERE l.accessType = :accessType"),
+	@NamedQuery(name="countAllByAccessType", query="SELECT count(l) FROM LoginEntity l WHERE l.accessType = :accessType")
+})
 public class LoginEntity extends AbstractEntity
 {
    @Column(nullable = false)

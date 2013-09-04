@@ -2,58 +2,26 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
   http://www.springframework.org/schema/beans/spring-beans.xsd
   http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd
   http://www.springframework.org/schema/tx 
-  http://www.springframework.org/schema/tx/spring-tx.xsd">
+  http://www.springframework.org/schema/tx/spring-tx.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<!-- CONTEXT -->
 	<context:property-placeholder location="/application.properties" />
-
 	<context:component-scan base-package="name.ruhkopf.jaxrs.server.service" />
 
-	<!-- PERSISTENCE -->
-	<tx:annotation-driven />
+	<!-- INCLUDES -->
+	<import resource="/persistenceContext.xml" />
 
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-	<bean id="jpaTemplate" class="org.springframework.orm.jpa.JpaTemplate">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
+	<!-- SERVICE CONFIGURATION -->
+	<util:map id="loginServiceProviders">
+		<entry key="usernamePasswordLoginService" value-ref="usernamePasswordLoginService" />
+	</util:map>
 
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
-		destroy-method="close">
-		<property name="driverClass" value="${db.driver}" />
-		<property name="jdbcUrl" value="${db.url}" />
-		<property name="user" value="${db.user}" />
-		<property name="password" value="${db.password}" />
 
-		<!-- Pool properties -->
-		<property name="minPoolSize" value="${db.pool.min}" />
-		<property name="maxPoolSize" value="${db.pool.max}" />
-		<property name="maxStatements" value="50" />
-		<property name="idleConnectionTestPeriod" value="300" />
-		<property name="loginTimeout" value="300" />
-	</bean>
-
-	<bean id="entityManagerFactory"
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="packagesToScan" value="name.ruhkopf.jaxrs.server.model" />
-		<property name="jpaVendorAdapter">
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-				<property name="databasePlatform" value="org.hibernate.dialect.PostgreSQLDialect" />
-				<property name="showSql" value="true" />
-			</bean>
-		</property>
-		<property name="jpaProperties">
-			<props>
-				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
-			</props>
-		</property>
-	</bean>
 </beans>
